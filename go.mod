@@ -1,4 +1,4 @@
-module restgo
+module github.com/techidea8/restgo
 
 go 1.15
 
