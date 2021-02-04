@@ -10,7 +10,7 @@ type Ctrl struct {
 func (*Ctrl) RespJson(w http.ResponseWriter, data interface{}, statuscode int) {
 	RespJson(w, data, statuscode)
 }
-
+//响应成功数据
 func (*Ctrl) RespOk(w http.ResponseWriter, data interface{}, datas ...interface{}) {
 	RespOk(w, data, datas...)
 }
