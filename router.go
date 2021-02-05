@@ -5,10 +5,11 @@ import (
 	"strings"
 
 	log "github.com/cihub/seelog"
+	"github.com/techidea8/restgo/middleware"
 )
 
 type MiddlewareRule struct {
-	fun      Middleware
+	fun      middleware.Middleware
 	excludes []string
 }
 type GroupRouter struct {

@@ -1,6 +1,10 @@
 package redis
 
-import "github.com/techidea8/restgo"
+import (
+	"fmt"
+
+	"github.com/garyburd/redigo/redis"
+)
 
 func InitRedis(conf Conf) {
 	redisPool := NewRedisPool(conf)
@@ -37,20 +41,19 @@ func (this *RedisClient) Set(k, v string) {
 	this.Exec("set", k, v)
 }
 
-func (this *RedisClient) HSet(k, f,v string) {
-	//HSET KEY_NAME FIELD VALUE 
-	this.Exec("hset", k,f, v)
+func (this *RedisClient) HSet(k, f, v string) {
+	//HSET KEY_NAME FIELD VALUE
+	this.Exec("hset", k, f, v)
 }
-func (this *RedisClient) HGet(k, f string)(r string, err error) {
-	//HSET KEY_NAME FIELD VALUE 
-	result, e :=this.Exec("hget", k,f)
+func (this *RedisClient) HGet(k, f string) (r string, err error) {
+	//HSET KEY_NAME FIELD VALUE
+	result, e := this.Exec("hget", k, f)
 	if e != nil {
 		return "", e
-	}else{
+	} else {
 		return fmt.Sprintf("%s", result), e
 	}
 }
-
 
 func (this *RedisClient) Get(k string) (r string, err error) {
 	result, e := this.Exec("get", k)

@@ -1,5 +1,9 @@
 package redis
 
+import (
+	"time"
+)
+
 type Conf struct {
 	DB             int           `mapstructure:"db" json:"db" yaml:"db"`
 	Addr           string        `mapstructure:"addr" json:"addr" yaml:"addr"`

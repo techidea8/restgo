@@ -1,7 +1,14 @@
 package redis
 
+import (
+	"time"
+
+	log "github.com/cihub/seelog"
+	"github.com/garyburd/redigo/redis"
+)
+
 func NewRedisPool(redisCfg Conf) *redis.Pool {
-	
+
 	return &redis.Pool{
 		MaxIdle:     redisCfg.MaxIdle,
 		IdleTimeout: redisCfg.IdleTimeoutSec * time.Second,
@@ -21,10 +28,4 @@ func NewRedisPool(redisCfg Conf) *redis.Pool {
 			return nil
 		},
 	}
-}
-
-func InitRedis() {
-	redisPool := NewRedisPool()
-	global.Redis = global.NewRedisClient(redisPool)
-	log.Debug("redis init complete")
 }

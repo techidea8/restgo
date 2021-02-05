@@ -1,13 +1,21 @@
 package mysql
 
-import "github.com/techidea8/restgo"
+import (
+	"os"
+
+	log "github.com/cihub/seelog"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
+)
 
 //@author: winlion
 //@function: Gorm
 //@description: 初始化数据库并产生数据库全局变量
 //@return: *gorm.DB
 
-func InitDatabase(m Conf,opts ...OrmOption) *gorm.DB {
+func InitDatabase(m Conf, opts ...OrmOption) *gorm.DB {
 	dsn := m.Username + ":" + m.Password + "@tcp(" + m.Addr + ")/" + m.Dbname + "?" + m.Query
 	mysqlConfig := mysql.Config{
 		DSN:                       dsn,   // DSN data source name
@@ -19,10 +27,10 @@ func InitDatabase(m Conf,opts ...OrmOption) *gorm.DB {
 
 	}
 	cfg := gormConfig()
-	for _,opt := range opts{
+	for _, opt := range opts {
 		opt(cfg)
 	}
-	if db, err := gorm.Open(mysql.New(mysqlConfig),cfg); err != nil {
+	if db, err := gorm.Open(mysql.New(mysqlConfig), cfg); err != nil {
 
 		log.Info("mysql start error:", err.Error())
 		os.Exit(0)
@@ -50,8 +58,8 @@ func InitDatabase(m Conf,opts ...OrmOption) *gorm.DB {
 		return db
 	}
 }
-type OrmOption func(*gorm.Config)
 
+type OrmOption func(*gorm.Config)
 
 //@author: winlion
 //@function: gormConfig
