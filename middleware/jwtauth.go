@@ -54,7 +54,10 @@ func RefreshToken(strToken string) (string, error) {
 	signedToken, err := getToken(claims)
 	return signedToken, err
 }
-
+//解析token
+func ParseToken(token string) (userId uint, err error) {
+	return parseUserId(token)
+}
 //解析token
 func CurrentUserId(req *http.Request) (userId uint, err error) {
 	strToken := req.Header.Get("X-token")

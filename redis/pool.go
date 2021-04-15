@@ -3,8 +3,8 @@ package redis
 import (
 	"time"
 
-	log "github.com/cihub/seelog"
 	"github.com/garyburd/redigo/redis"
+	"log"
 )
 
 func NewRedisPool(redisCfg Conf) *redis.Pool {
@@ -23,7 +23,8 @@ func NewRedisPool(redisCfg Conf) *redis.Pool {
 		TestOnBorrow: func(c redis.Conn, t time.Time) error {
 			_, err := c.Do("PING")
 			if err != nil {
-				return log.Errorf("ping redis error: %s", err)
+				 log.Fatalf("ping redis error: %s", err)
+				 return err
 			}
 			return nil
 		},

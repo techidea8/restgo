@@ -6,9 +6,10 @@ import (
 	"github.com/garyburd/redigo/redis"
 )
 
-func InitRedis(conf Conf) {
+func InitRedis(conf Conf) *RedisClient {
 	redisPool := NewRedisPool(conf)
 	RedisEngin = NewRedisClient(redisPool)
+	return RedisEngin
 }
 
 type RedisClient struct {
@@ -50,9 +51,14 @@ func (this *RedisClient) HGet(k, f string) (r string, err error) {
 	result, e := this.Exec("hget", k, f)
 	if e != nil {
 		return "", e
-	} else {
-		return fmt.Sprintf("%s", result), e
 	}
+	if result != nil{
+		return fmt.Sprintf("%s", result), e
+	}else{
+		return "",nil
+	}
+
+
 }
 
 func (this *RedisClient) Get(k string) (r string, err error) {
@@ -60,7 +66,11 @@ func (this *RedisClient) Get(k string) (r string, err error) {
 	if e != nil {
 		return "", e
 	}
-	return fmt.Sprintf("%s", result), nil
+	if result != nil{
+		return fmt.Sprintf("%s", result), e
+	}else{
+		return "",nil
+	}
 }
 
 func (this *RedisClient) SetKeyExpire(k string, ex int) {
