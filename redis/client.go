@@ -38,11 +38,11 @@ func NewRedisClient(p *redis.Pool) *RedisClient {
 		redisPool: p,
 	}
 }
-func (this *RedisClient) Set(k, v string) {
+func (this *RedisClient) Set(k, v interface{}) {
 	this.Exec("set", k, v)
 }
 
-func (this *RedisClient) HSet(k, f, v string) {
+func (this *RedisClient) HSet(k, f, v interface{}) {
 	//HSET KEY_NAME FIELD VALUE
 	this.Exec("hset", k, f, v)
 }

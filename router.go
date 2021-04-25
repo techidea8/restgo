@@ -1,17 +1,25 @@
 package restgo
 
 import (
+	"github.com/techidea8/restgo/middleware"
+	"log"
 	"net/http"
 	"strings"
-
-	log "github.com/cihub/seelog"
-	"github.com/techidea8/restgo/middleware"
 )
 
 type MiddlewareRule struct {
 	fun      middleware.Middleware
 	excludes []string
 }
+//跨域开关
+var cors bool = false
+func EnableCors(){
+	cors = true
+}
+func DisableCors(){
+	cors = false
+}
+
 type GroupRouter struct {
 	Module         string
 	MiddlewareRule []MiddlewareRule
@@ -54,7 +62,22 @@ func (p *GroupRouter) handlerouter(method, act string, fun func(w http.ResponseW
 	}
 
 	http.HandleFunc(prefix+"/"+act, func(w http.ResponseWriter, req *http.Request) {
+        //如果跨域支持
 
+		if(cors){
+			headers := w.Header()
+			headers.Add("Access-Control-Allow-Origin", "*") //允许访问所有域
+			headers.Add("Access-Control-Allow-Headers", "*") //header的类型
+			headers.Add("Access-Control-Allow-Methods", "*")
+		}
+		if req.Method == "OPTIONS" {
+			if(cors){
+				w.WriteHeader(http.StatusOK)
+			}else{
+				w.WriteHeader(http.StatusForbidden)
+			}
+			return
+		}
 		for _, v := range p.MiddlewareRule {
 			shouldrun := true
 			for _, a := range v.excludes {
@@ -77,16 +100,14 @@ func (p *GroupRouter) handlerouter(method, act string, fun func(w http.ResponseW
 				}
 			}
 		}
-		//options方法直接返回啦
-		if req.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-		} else if method == "*" || method == req.Method {
+		//options方法直接返回啦,跨域
+		if method == "*" || method == req.Method {
 			fun(w, req)
 		} else {
 			RespFail(w, "不支持该方法", http.StatusNotFound)
 		}
 	})
-	log.Debugf("register  [%s] [%s]", method, prefix+"/"+act)
+	log.Default().Printf("register  [%s] [%s]", method, prefix+"/"+act)
 	return p
 }
 

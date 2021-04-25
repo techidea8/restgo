@@ -7,7 +7,6 @@ import (
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 //@author: winlion
@@ -37,7 +36,6 @@ func InitMysql(m Conf, opts ...OrmOption) *gorm.DB {
 		return nil
 	} else {
 		sqlDB, err := db.DB()
-
 		if err != nil {
 			log.Fatal("mysql start error", err.Error())
 			os.Exit(0)
@@ -47,13 +45,6 @@ func InitMysql(m Conf, opts ...OrmOption) *gorm.DB {
 		sqlDB.SetMaxIdleConns(m.MaxIdleConns)
 		sqlDB.SetMaxOpenConns(m.MaxOpenConns)
 		log.Println("mysql start ok")
-
-		if m.Debug {
-			db.Logger = logger.Default.LogMode(logger.Info)
-			db = db.Debug()
-		} else {
-			db.Logger = logger.Default.LogMode(logger.Error)
-		}
 		DbEngin = db
 		return db
 	}

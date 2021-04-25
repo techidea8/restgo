@@ -10,5 +10,5 @@ type Conf struct {
 	MaxIdleConns int    `mapstructure:"max-idle-conns" json:"maxIdleConns" yaml:"max-idle-conns"`
 	MaxOpenConns int    `mapstructure:"max-open-conns" json:"maxOpenConns" yaml:"max-open-conns"`
 	TablePrefix  string `mapstructure:"table-prefix" json:"tablePrefix" yaml:"table-prefix"`
-	Debug        bool   `mapstructure:"debug" json:"debug" yaml:"debug"`
+	LogMode      int   `mapstructure:"log-mode" json:"logMode" yaml:"log-mode"`
 }
