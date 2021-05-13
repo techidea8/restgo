@@ -1,4 +1,4 @@
-module restgo
+module restctl
 
 go 1.16
 
