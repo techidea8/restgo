@@ -1,4 +1,4 @@
-module gorest
+module restgo
 
 go 1.16
 
