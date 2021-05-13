@@ -1,0 +1,14 @@
+{{define "server/model"}}
+package model
+import(
+    "github.com/techidea8/restgo"
+	"gorm.io/gorm"
+)
+
+type {{.Model}} struct{
+	{{range $i,$v := .Columns}}
+        {{ $v.SqlStr }}
+    {{end}}
+}
+
+{{end}}
