@@ -7,17 +7,16 @@ import (
 	"embed"
 	"flag"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/spf13/viper"
 	"html/template"
 	"io/fs"
 	"os"
 	"path"
 	"strings"
 	"unicode"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/spf13/viper"
 )
-
-
 
 type Column struct {
 	ColumnName      string        `json:"colname"`
@@ -133,18 +132,16 @@ func TempleteFs(assets embed.FS, root string) fs.FS {
 	return handler
 }
 
-
-
-type Config struct{
+type Config struct {
 	Database string `mapstructure:"database" json:"database"`
-	Table string `mapstructure:"table" json:"table"`
+	Table    string `mapstructure:"table" json:"table"`
 	Username string `mapstructure:"username" json:"username"`
 	Password string `mapstructure:"password" json:"password"`
-	Host string `mapstructure:"host" json:"host"`
-	Port string `mapstructure:"port" json:"port"`
-	Model string `mapstructure:"model" json:"model"`
-	Package string `mapstructure:"package" json:"package"`
-	Dstdir string  `mapstructure:"dstdir" json:"dstdir"`
+	Host     string `mapstructure:"host" json:"host"`
+	Port     string `mapstructure:"port" json:"port"`
+	Model    string `mapstructure:"model" json:"model"`
+	Package  string `mapstructure:"package" json:"package"`
+	Dstdir   string `mapstructure:"dstdir" json:"dstdir"`
 }
 
 var db = flag.String("db", "test", "database name")
@@ -160,39 +157,65 @@ var cfgpath = flag.String("c", "./restgo.yaml", "config file path")
 
 var model = ""
 var config Config
+
 func main() {
 	flag.Parse()
 
 	v := viper.New()
 
 	v.SetConfigFile(*cfgpath)
+
 	err := v.ReadInConfig()
 	if err != nil {
 		//panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
 	v.Unmarshal(&config)
-	if *db != "test"{
+	if config.Database == "" {
+		v.SetDefault("database", "test")
+	}
+	if *db != "test" {
 		config.Database = *db
 	}
-	if *table != "test"{
+
+	if *table != "test" {
 		config.Table = *table
 	}
-	if *modelin != ""{
+	if *modelin != "" {
 		config.Model = *modelin
 	}
-	if *dstdir != "./"{
+
+	if config.Dstdir == "" {
+		v.SetDefault("DSTDIR", "./")
+	}
+	if *dstdir != "./" {
 		config.Dstdir = *dstdir
 	}
-	if *user != "root"{
+
+	if config.Username == "" {
+		v.SetDefault("username", "root")
+	}
+	if *user != "root" {
 		config.Username = *user
 	}
-	if *passwd != ""{
+
+	if config.Password == "" {
+		v.SetDefault("password", "test")
+	}
+	if *passwd != "" {
 		config.Password = *passwd
 	}
-	if *host != "127.0.0.1"{
+
+	if config.Host == "" {
+		v.SetDefault("host", "127.0.0.1")
+	}
+	if *host != "127.0.0.1" {
 		config.Host = *host
 	}
-	if *port != "3306"{
+
+	if config.Port == "" {
+		v.SetDefault("port", "3306")
+	}
+	if *port != "3306" {
 		config.Port = *port
 	}
 
@@ -202,7 +225,7 @@ func main() {
 	}
 	model = strings.ToLower(model)
 	// Open方法第二个参数:  用户名:密码@协议(ip:端口)/数据库
-	dnsstr := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", config.Username,config.Password,config.Host,config.Port,config.Database)
+	dnsstr := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", config.Username, config.Password, config.Host, config.Port, config.Database)
 	//fmt.Println(dnsstr)
 	MtsqlDb, err := sql.Open("mysql", dnsstr)
 
@@ -235,29 +258,29 @@ func main() {
 		"server/args", "server/model", "server/ctrl", "server/service",
 	}
 	for _, tpl := range tpls {
-		os.MkdirAll(*dstdir+"/"+tpl, fs.FileMode(os.O_CREATE))
-		f, err := os.OpenFile(*dstdir+"/"+tpl+"/"+model+".go", os.O_WRONLY|os.O_CREATE, 0766)
+		os.MkdirAll(config.Dstdir+"/"+tpl, fs.FileMode(os.O_CREATE))
+		f, err := os.OpenFile(config.Dstdir+"/"+tpl+"/"+model+".go", os.O_WRONLY|os.O_CREATE, 0766)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 
 		tmpl.ExecuteTemplate(f, tpl, DstData{
-			Package: *pkg,
+			Package: config.Package,
 			Model:   ucfirst(transfer(model)),
 			ModelL:  lcfirst(transfer(model)),
 			Columns: columns,
 		})
 	}
 
-	os.MkdirAll(*dstdir+"/ui/view/"+model, fs.FileMode(os.O_CREATE))
-	f, err := os.OpenFile(*dstdir+"/ui/view/"+model+"/list.vue", os.O_WRONLY|os.O_CREATE, 0766)
+	os.MkdirAll(config.Dstdir+"/ui/view/"+model, fs.FileMode(os.O_CREATE))
+	f, err := os.OpenFile(config.Dstdir+"/ui/view/"+model+"/list.vue", os.O_WRONLY|os.O_CREATE, 0766)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	tmpl.ExecuteTemplate(f, "view/list", DstData{
-		Package: *pkg,
+		Package: config.Package,
 		Model:   ucfirst(transfer(model)),
 		ModelL:  lcfirst(transfer(model)),
 		Columns: columns,
@@ -270,7 +293,7 @@ func main() {
 		return
 	}
 	tmpl.ExecuteTemplate(f, "view/api", DstData{
-		Package: *pkg,
+		Package: config.Package,
 		Model:   ucfirst(transfer(model)),
 		ModelL:  lcfirst(transfer(model)),
 		Columns: columns,
