@@ -152,14 +152,39 @@ var user = flag.String("u", "root", "user name")
 var passwd = flag.String("p", "", "password")
 var host = flag.String("h", "127.0.0.1", "database host")
 var port = flag.String("a", "3306", "mysql port")
+
+//#
 var pkg = flag.String("pkg", "turinapp", "application package")
 var cfgpath = flag.String("c", "./restgo.yaml", "config file path")
+
+//#
+var initit = flag.Bool("init", false, "init restgo project")
+var showversion = flag.Bool("v", false, "show restctl version")
 
 var model = ""
 var config Config
 
+const version = `
+restctl version @0.0.3\n
+all rights reserved\n
+email=271151388@qq.com\n
+author=winlion
+`
+
 func main() {
-	flag.Parse()
+	if len(os.Args) == 1 {
+		flag.CommandLine.Parse([]string{"-h"})
+	} else {
+		flag.Parse()
+	}
+
+	//如果需要展示版本号
+	if *showversion {
+		fmt.Println(version)
+		return
+	}
+
+	//如果需要reversion数据库
 
 	v := viper.New()
 
