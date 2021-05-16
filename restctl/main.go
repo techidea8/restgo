@@ -137,8 +137,7 @@ type Config struct {
 	Table    string `mapstructure:"table" json:"table"`
 	Username string `mapstructure:"username" json:"username"`
 	Password string `mapstructure:"password" json:"password"`
-	Host     string `mapstructure:"host" json:"host"`
-	Port     string `mapstructure:"port" json:"port"`
+	Addr     string `mapstructure:"addr" json:"addr"`
 	Model    string `mapstructure:"model" json:"model"`
 	Package  string `mapstructure:"package" json:"package"`
 	Dstdir   string `mapstructure:"dstdir" json:"dstdir"`
@@ -150,8 +149,7 @@ var modelin = flag.String("m", "", "out model")
 var dstdir = flag.String("o", "./", "dist dir")
 var user = flag.String("u", "root", "user name")
 var passwd = flag.String("p", "", "password")
-var host = flag.String("h", "127.0.0.1", "database host")
-var port = flag.String("a", "3306", "mysql port")
+var addr = flag.String("addr", "127.0.0.1:3306", "mysql database host")
 
 //#
 var pkg = flag.String("pkg", "turinapp", "application package")
@@ -178,9 +176,9 @@ func main() {
 		flag.Parse()
 	}
 
+	fmt.Println(version)
 	//如果需要展示版本号
 	if *showversion {
-		fmt.Println(version)
 		return
 	}
 
@@ -230,18 +228,8 @@ func main() {
 		config.Password = *passwd
 	}
 
-	if config.Host == "" {
-		v.SetDefault("host", "127.0.0.1")
-	}
-	if *host != "127.0.0.1" {
-		config.Host = *host
-	}
-
-	if config.Port == "" {
-		v.SetDefault("port", "3306")
-	}
-	if *port != "3306" {
-		config.Port = *port
+	if config.Addr == "" {
+		v.SetDefault("addr", "127.0.0.1:3306")
 	}
 
 	model = config.Model
@@ -250,7 +238,7 @@ func main() {
 	}
 	model = strings.ToLower(model)
 	// Open方法第二个参数:  用户名:密码@协议(ip:端口)/数据库
-	dnsstr := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", config.Username, config.Password, config.Host, config.Port, config.Database)
+	dnsstr := fmt.Sprintf("%s:%s@tcp(%s)/%s", config.Username, config.Password, config.Addr, config.Database)
 	//fmt.Println(dnsstr)
 	MtsqlDb, err := sql.Open("mysql", dnsstr)
 
