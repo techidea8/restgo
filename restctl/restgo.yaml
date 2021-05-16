@@ -1,8 +1,7 @@
 database: test
 dstdir: ./
-host: 127.0.0.1
 package: turingapp
 password: root
-port: 3306
+addr: 127.0.0.1:3306
 table: test
 username: root
