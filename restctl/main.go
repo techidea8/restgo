@@ -160,7 +160,7 @@ var initit = flag.Bool("init", false, "init restgo project")
 var showversion = flag.Bool("v", false, "show restctl version")
 
 var model = ""
-var config Config
+var config *Config = new(Config)
 
 const version = `
 restctl version @0.0.3\n
@@ -169,6 +169,16 @@ email=271151388@qq.com\n
 author=winlion
 `
 
+func PathExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
+}
 func main() {
 	if len(os.Args) == 1 {
 		flag.CommandLine.Parse([]string{"-h"})
@@ -178,24 +188,42 @@ func main() {
 
 	fmt.Println(version)
 	//如果需要展示版本号
-	if *showversion {
-		return
+	if exist, err := PathExists(*cfgpath); err != nil || !exist {
+		f, _ := os.OpenFile(*cfgpath, os.O_WRONLY|os.O_CREATE, 0666) //打开文件
+		f.Close()                                                    //写入文件(字符串)
 	}
-
 	//如果需要reversion数据库
 
 	v := viper.New()
 
 	v.SetConfigFile(*cfgpath)
-
 	err := v.ReadInConfig()
 	if err != nil {
-		//panic(fmt.Errorf("Fatal error config file: %s \n", err))
+		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
-	v.Unmarshal(&config)
+	v.Unmarshal(config)
 	if config.Database == "" {
 		v.SetDefault("database", "test")
 	}
+	if config.Addr == "" {
+		v.SetDefault("addr", "127.0.1:3306")
+	}
+	if config.Dstdir == "" {
+		v.SetDefault("dstdir", "./")
+	}
+	if config.Model == "" {
+		v.SetDefault("model", "test")
+	}
+	if config.Table == "" {
+		v.SetDefault("table", "test")
+	}
+	if config.Username == "" {
+		v.SetDefault("username", "root")
+	}
+	if config.Password == "" {
+		v.SetDefault("password", "root")
+	}
+
 	if *db != "test" {
 		config.Database = *db
 	}
@@ -208,7 +236,7 @@ func main() {
 	}
 
 	if config.Dstdir == "" {
-		v.SetDefault("DSTDIR", "./")
+		v.SetDefault("dstdir", "./")
 	}
 	if *dstdir != "./" {
 		config.Dstdir = *dstdir
@@ -217,6 +245,7 @@ func main() {
 	if config.Username == "" {
 		v.SetDefault("username", "root")
 	}
+
 	if *user != "root" {
 		config.Username = *user
 	}
@@ -230,6 +259,14 @@ func main() {
 
 	if config.Addr == "" {
 		v.SetDefault("addr", "127.0.0.1:3306")
+	}
+	//如果指定默认-pkg参数 则 默认package
+	if *pkg != "" {
+		v.SetDefault("package", *pkg)
+	}
+	v.WriteConfig()
+	if *showversion {
+		return
 	}
 
 	model = config.Model
@@ -311,5 +348,5 @@ func main() {
 		ModelL:  lcfirst(transfer(model)),
 		Columns: columns,
 	})
-	v.WriteConfig()
+
 }

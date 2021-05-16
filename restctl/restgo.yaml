@@ -1,7 +1,0 @@
-database: test
-dstdir: ./
-package: turingapp
-password: root
-addr: 127.0.0.1:3306
-table: test
-username: root
