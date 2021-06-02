@@ -13,15 +13,23 @@ var (
 	ExpireTime             = 3600 * 72   // token有效期
 	ErrorReason_ServerBusy = "服务器繁忙"
 	ErrorReason_ReLogin    = "请重新登陆"
-	TokenStr               = "X-Token"
+	tokenStr               = "X-Token"
 )
 
+//设置默认的token名称
+func SetDefaultTokenStr(str string) {
+	tokenStr = str
+}
+
 //中间件
-func JwtAuth() Middleware {
+func JwtAuth(args ...string) Middleware {
 	return func(w http.ResponseWriter, req *http.Request) (bool, error) {
 		// 我们这里jwt鉴权取头部信息 x-token 登录时回返回token信息 这里前端需要把token存储到cookie或者本地localStorage中 不过需要跟后端协商过期时间 可以约定刷新令牌或者重新登录
-		token := req.Header.Get("x-token")
-
+		_tokenStr := tokenStr
+		if len(args) > 0 {
+			_tokenStr = args[0]
+		}
+		token := req.Header.Get(_tokenStr)
 		if token == "" {
 			return false, errors.New("你没有权限进行该操作")
 		}
@@ -54,13 +62,19 @@ func RefreshToken(strToken string) (string, error) {
 	signedToken, err := getToken(claims)
 	return signedToken, err
 }
+
 //解析token
 func ParseToken(token string) (userId uint, err error) {
 	return parseUserId(token)
 }
+
 //解析token
-func CurrentUserId(req *http.Request) (userId uint, err error) {
-	strToken := req.Header.Get("X-token")
+func CurrentUserId(req *http.Request, args ...string) (userId uint, err error) {
+	_tokenStr := tokenStr
+	if len(args) > 0 {
+		_tokenStr = args[0]
+	}
+	strToken := req.Header.Get(_tokenStr)
 	return parseUserId(strToken)
 }
 

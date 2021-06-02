@@ -162,12 +162,7 @@ var showversion = flag.Bool("v", false, "show restctl version")
 var model = ""
 var config *Config = new(Config)
 
-const version = `
-restctl version @0.0.3\n
-all rights reserved\n
-email=271151388@qq.com\n
-author=winlion
-`
+const version = `restctl version @0.0.4,all rights reserved,email=271151388@qq.com,author=winlion`
 
 func PathExists(path string) (bool, error) {
 	_, err := os.Stat(path)
