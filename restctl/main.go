@@ -240,7 +240,7 @@ func main() {
 	if config.Username == "" {
 		v.SetDefault("username", "root")
 	}
-
+	
 	if *user != "root" {
 		config.Username = *user
 	}
