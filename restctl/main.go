@@ -99,7 +99,7 @@ func buildsql(col Column) template.HTML {
 	if col.ColumnName == "id" {
 		return `restgo.BaseModel`
 	}
-	ret := uname + " " + datatype(col) + " " + " ` " + "json:\"" + lname + "\" form:\"" + lname + "\""
+	ret := uname + " " + datatype(col) + " " + " `" + "json:\"" + lname + "\" form:\"" + lname + "\""
 	if col.DataType == "date" || col.DataType == "datetime" {
 		ret = ret + ` time_format:"2006-01-02 15:04:05" time_utc:"1"`
 	}
@@ -220,45 +220,44 @@ func main() {
 	}
 
 	if *db != "test" {
+		v.SetDefault("database", *db)
 		config.Database = *db
 	}
 
 	if *table != "test" {
 		config.Table = *table
+		v.SetDefault("table", *table)
 	}
 	if *modelin != "" {
 		config.Model = *modelin
+		v.SetDefault("model", *modelin)
 	}
 
-	if config.Dstdir == "" {
-		v.SetDefault("dstdir", "./")
-	}
 	if *dstdir != "./" {
 		config.Dstdir = *dstdir
+		v.SetDefault("dstdir", *dstdir)
 	}
 
-	if config.Username == "" {
-		v.SetDefault("username", "root")
-	}
-	
 	if *user != "root" {
 		config.Username = *user
+		v.SetDefault("username", *user)
 	}
 
-	if config.Password == "" {
-		v.SetDefault("password", "test")
-	}
 	if *passwd != "" {
+		v.SetDefault("password", *passwd)
 		config.Password = *passwd
 	}
 
-	if config.Addr == "" {
-		v.SetDefault("addr", "127.0.0.1:3306")
+	if *addr != "127.0.0.1:3306" {
+		v.SetDefault("addr", *addr)
+		config.Addr = *addr
 	}
 	//如果指定默认-pkg参数 则 默认package
-	if *pkg != "" {
+	if *pkg != "turinapp" {
 		v.SetDefault("package", *pkg)
+		config.Package = *pkg
 	}
+
 	v.WriteConfig()
 	if *showversion {
 		return

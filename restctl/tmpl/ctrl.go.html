@@ -4,12 +4,8 @@ package ctrl
 import (
 	"net/http"
 	"{{.Package}}/args"
-	"{{.Package}}/global"
 	"{{.Package}}/model"
 	"{{.Package}}/service"
-
-	"gorm.io/gorm"
-
 	"github.com/techidea8/restgo"
 	"github.com/techidea8/restgo/middleware"
 )
@@ -55,13 +51,10 @@ func (ctrl *{{.Model}}Ctrl) Create(w http.ResponseWriter, req *http.Request) {
 func (ctrl *{{.Model}}Ctrl) Update(w http.ResponseWriter, req *http.Request) {
 	property := model.{{.Model}}{}
 	restgo.Bind(req, &property)
-	if result, err := service.Update{{.Model}}(property); err != nil {
+	result, err := service.Update{{.Model}}(property)
+	if err != nil {
 		ctrl.RespFail(w, err.Error())
 	} else {
-		//刷新设备信息
-		service.PublishMessage(result.{{.Model}}no, service.MsgType{
-			service.CmdRefresh{{.Model}}, result.{{.Model}}no,
-		})
 		ctrl.RespOk(w, result)
 	}
 }

@@ -1,9 +1,11 @@
 {{define "server/args"}}
+
 package args
 import(
     "github.com/techidea8/restgo"
 	"gorm.io/gorm"
 )
+
 type {{.Model}} struct{
     restgo.PageArg
 	Total int `json:"total" form:"total"`
@@ -22,8 +24,8 @@ func (p *{{.Model}}) Condtions() func(db *gorm.DB) *gorm.DB {
 		if !p.Dateto.IsZero() {
 			db = db.Where("create_at  < ?", p.Dateto.String())
 		}
-        
 		return db
 	}
 }
+//结束
 {{end}}
