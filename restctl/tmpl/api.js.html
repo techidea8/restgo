@@ -3,7 +3,7 @@ import request from '@/utils/request'
 
 const prefix = "/{{.ModelL}}"
 
-
+//查询,搜索
 export function search(data) {
   return request({
     url: prefix +'/search',
@@ -11,7 +11,7 @@ export function search(data) {
     data:data
   })
 }
-
+//创建对象
 export function create(data) {
 
   return request({
@@ -20,7 +20,7 @@ export function create(data) {
     data
   })
 }
-
+//更新
 export function update(data) {
 
   return request({
@@ -29,6 +29,7 @@ export function update(data) {
     data
   })
 }
+//获取一条记录
 export function getOne(id) {
 
   return request({
@@ -38,7 +39,7 @@ export function getOne(id) {
   })
 }
 
-
+//删除某一条记录
 export function deleteIt(id) {
 
   return request({
@@ -49,4 +50,8 @@ export function deleteIt(id) {
     }
   })
 }
+
+//默认输出api对象
+export default {search,create,update,deleteIt,getOne}
+
 {{end}}

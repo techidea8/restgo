@@ -49,6 +49,8 @@ type DstData struct {
 	Package string   `json:"package'`
 	Model   string   `json:"model'`
 	ModelL  string   `json:"modell"`
+	ModelApi  template.JS   `json:"modelapi"`
+	DefaultObj template.JS `json:"defaultobj"`
 	Columns []Column `json:"columns"`
 }
 
@@ -83,6 +85,7 @@ var datatypemap map[string]string = map[string]string{
 	"varchar":  "string",
 	"bit":      "int",
 	"decimal":  "float64",
+	"numeric":  "float64",
 }
 
 //Col int
@@ -350,10 +353,11 @@ func main() {
 		Package: config.Package,
 		Model:   ucfirst(transfer(model)),
 		ModelL:  lcfirst(transfer(model)),
+		ModelApi: template.JS(lcfirst(transfer(model))+"Api"),
 		Columns: columns,
 	})
 	//并不需要创建目录
-	//os.MkdirAll(*dstdir+"/ui/api/"+model, fs.FileMode(os.O_CREATE))
+	os.MkdirAll(*dstdir+"/ui/api/", fs.FileMode(os.O_CREATE))
 	f, err = os.OpenFile(*dstdir+"/ui/api/"+model+".js", os.O_WRONLY|os.O_CREATE, 0766)
 	if err != nil {
 		fmt.Println(err)
@@ -363,6 +367,7 @@ func main() {
 		Package: config.Package,
 		Model:   ucfirst(transfer(model)),
 		ModelL:  lcfirst(transfer(model)),
+		ModelApi: template.JS(lcfirst(transfer(model))+"Api"),
 		Columns: columns,
 	})
 
