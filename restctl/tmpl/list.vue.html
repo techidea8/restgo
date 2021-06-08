@@ -1,9 +1,7 @@
 {{define "view/list"}}
 <template>
     <div class="app-container">
-        <el-container>
-  
-        
+        <el-container> 
      <el-row>
             <el-form :inline="true" v-model="cond"  class="demo-form-inline">
       <el-form-item label="关键字">
@@ -11,7 +9,6 @@
       </el-form-item>
       <el-form-item label="创建时间">
         <el-date-picker
-                     
                       v-model="cond.daterange"
                       type="datetimerange"
                       align="right"
@@ -23,20 +20,18 @@
       <el-form-item>
       <el-button-group>
       <el-button type="primary" @click="search">搜索</el-button>
-      
+      <el-button type="primary" @click="handleAddOne">添加</el-button>
       </el-button-group>
       </el-form-item>
   
             </el-form>
       </el-row>
       
-      <el-table @selection-change="selectionchange" :data="dataList" :row-class-name="tableRowClassName" style="width: 100%;" border>
-        <el-table-column align="header-center" label="序号" type="selection">    
-        </el-table-column>
+      <el-table  :data="dataList" style="width: 100%;" border>
         {{range $i,$v := .Columns}}
         <el-table-column align="header-center" label="{{$v.Comment}}">
-          <template slot-scope="scope" v-text="scope.row.{{$v.ColumnName}}">
-
+          <template slot-scope="scope" >
+				<block v-text="scope.row.{{$v.ColumnName}}"></block>
           </template>
         </el-table-column>
        {{end}}
@@ -55,7 +50,7 @@
       </el-table>
          
           
-   <el-footer>
+       <el-footer>
        <el-pagination
        background
         @size-change="handleSizeChange"
@@ -77,7 +72,7 @@
     ref="drawer"
     >
       
-        <el-form :model="dataobject" label-width="80px" style="margin-left:20px;margin-right:20px" label-position="left">
+    <el-form :model="dataobject" label-width="80px" style="margin-left:20px;margin-right:20px" label-position="left">
             {{range $i,$v := .Columns}}
           <el-form-item label="{{$v.Comment}}">
                     <el-input v-model="dataobject.{{$v.ColumnName}}" placeholder="输入"></el-input>
@@ -92,33 +87,29 @@
         </el-form>
         
        
-      </el-dialog>
+    </el-dialog>
       
   
-        </el-container>
-          </div>
-  </template>
+    </el-container>
+  </div>
+</template>
   
 <script>
-  import {deepClone} from "@/utils/index" 
+  
   import { search,update,create ,deleteIt} from '@/api/{{.ModelL}}'
-  const defaultObject = {
-    id:0,
-    daterange:[]
-  }
+  const defaultObject = {id:0, daterange:[]}
   
   export default {
    
     data() {
     
       return {
-       
         dataobject: Object.assign({}, defaultObject),
-     
         dataList: [],
         dialogVisible: false,
         dialogType: 'new',
         checkStrictly: false,
+		chosedIds:[],
         cond:{
           pagefrom:1,
           pagesize:10,
@@ -128,45 +119,31 @@
           }
       }
     },
-    computed: {
-      routesData() {
-        return this.routes
-      }
-    },
     created() {
-    
       this.search()
     },
     methods: {
-      selectionchange(rows){
-            let tmp = []
-            rows.forEach(element => {
-                  tmp.push(element.deviceno)
-            });
-            this.devicenos = tmp;
+      datechange(a){ //时间变换
+		  if(!a){
+			this.dataobject.daterange = []
+			this.cond.total = -1	
+		  }else{
+			this.dataobject.daterange = a
+			this.cond.total = -1	
+		  }
+		  
           
       },
-     
-      datechange(a){
-         
-          this.dataobject.daterange = a
-      },
-      
-      handleSizeChange(n){
+      handleSizeChange(n){ //页码变化
           this.cond.pagesize = n
+		  this.cond.total = -1
           this.search()
       },
       handleCurrentChange(p){
           this.cond.pagefrom = p
           this.search()
       },
-      tableRowClassName({row, rowIndex}) {
-          if (row.requireAuth) {
-            return 'warning-row';
-          }
-          return '';
-        },
-      async search() {
+      async search() { //搜索
         let datearg = {
           
         } 
@@ -180,28 +157,21 @@
         this.cond.total = res.total
       },
       
-      handleAddOne() {
+      handleAddOne() {//添加一条新记录
         this.dataobject = Object.assign({}, defaultObject)
-       
         this.dialogType = 'new'
         this.dialogVisible = true
       },
-      handleEdit(scope) {
+      handleEdit(scope) {  //修改更新记录
         this.dialogType = 'edit'
         this.dialogVisible = true
-      
-        this.dataobject = deepClone(scope.row)
-        //this.dataobject.daterange = [new Date(scope.row.startat),new Date(scope.row.expireat)]
+        this.dataobject = Object.assign({}.scope.row)
       },
       handleDelete({ $index, row }) {
-        console.log('index',$index,row)
            deleteIt(row.id).then(res=>{
              this.dataList.splice($index, 1)
-            this.$message({
-              type: 'success',
-              message: '你已成功删除数据'
-            })
-           }).catch(err => { console.error(err) })
+            this.$notify.success('你已成功删除数据')
+           }).catch(err => { this.$notify.error(err.message) })
       },
       
       async confirmData() {
@@ -210,19 +180,16 @@
         if (isEdit) {
           update(Object.assign({},this.dataobject)).then(res=>{
               this.search()
+			  this.$notify.success(res.msg || "数据修改成功")
           })
         } else {
-          
-          const { data } = await create(Object.assign({},this.dataobject,datearg))
+          const { data,msg } = await create(Object.assign({},this.dataobject,datearg))
           this.dataobject.id = data.id
           this.dataList.push(data)
+		  this.$notify.success(msg || "数据添加成功")
         }
         this.dialogVisible = false
-        this.$notify({
-          title: '提示',
-          message: "数据添加成功",
-          type: 'success'
-        })
+        
       }
     }
   }

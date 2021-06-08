@@ -11,6 +11,7 @@ import (
 	"io/fs"
 	"os"
 	"path"
+	"strconv"
 	"strings"
 	"unicode"
 
@@ -21,6 +22,7 @@ import (
 type Column struct {
 	ColumnName      string        `json:"colname"`
 	DataType        string        `json:"datatype"`
+	CharMaxLen          int         `json:"maxlen"`
 	ColumnType      string        `json:"coltype"`
 	Nump            int           `json:"nump"`
 	Nums            int           `json:"nums"`
@@ -103,7 +105,14 @@ func buildsql(col Column) template.HTML {
 	if col.DataType == "date" || col.DataType == "datetime" {
 		ret = ret + ` time_format:"2006-01-02 15:04:05" time_utc:"1"`
 	}
-	ret = ret + "`"
+	ret = ret + ` gorm:"comment:'`+col.Comment+`'`
+	if col.DataType == "varchar" {
+		if(col.CharMaxLen==0){
+			col.CharMaxLen = 250
+		}
+		ret = ret + `;type:varchar(`+ strconv.Itoa(col.CharMaxLen)+`)`
+	}
+	ret = ret + "\"` "
 
 	return template.HTML(ret)
 }
@@ -141,6 +150,7 @@ type Config struct {
 	Model    string `mapstructure:"model" json:"model"`
 	Package  string `mapstructure:"package" json:"package"`
 	Dstdir   string `mapstructure:"dstdir" json:"dstdir"`
+	Lang     string `mapstructure:"lang" json:"lang"`
 }
 
 var db = flag.String("db", "test", "database name")
@@ -150,7 +160,7 @@ var dstdir = flag.String("o", "./", "dist dir")
 var user = flag.String("u", "root", "user name")
 var passwd = flag.String("p", "", "password")
 var addr = flag.String("addr", "127.0.0.1:3306", "mysql database host")
-
+var lang = flag.String("l", "go", "code language,eg:go || java || php ")
 //#
 var pkg = flag.String("pkg", "turinapp", "application package")
 var cfgpath = flag.String("c", "./restgo.yaml", "config file path")
@@ -162,7 +172,7 @@ var showversion = flag.Bool("v", false, "show restctl version")
 var model = ""
 var config *Config = new(Config)
 
-const version = `restctl version @0.0.5,all rights reserved,email=271151388@qq.com,author=winlion`
+const version = `restctl version @0.0.6,all rights reserved,email=271151388@qq.com,author=winlion`
 
 func PathExists(path string) (bool, error) {
 	_, err := os.Stat(path)
@@ -286,14 +296,20 @@ func main() {
 	}
 	defer MtsqlDb.Close()
 	columns := make([]Column, 0)
-	rows, err := MtsqlDb.Query(`select COLUMN_NAME ,DATA_TYPE,COLUMN_TYPE,NUMERIC_PRECISION,NUMERIC_SCALE,COLUMN_COMMENT,column_key,extra,ORDINAL_POSITION  from information_schema.COLUMNS where  table_schema = ? and  table_name = ?`, config.Database,config.Table)
+	rows, err := MtsqlDb.Query(`select COLUMN_NAME ,DATA_TYPE,IFNULL(CHARACTER_MAXIMUM_LENGTH,0),COLUMN_TYPE,IFNULL(NUMERIC_PRECISION,0),IFNULL(NUMERIC_SCALE,0),COLUMN_COMMENT,column_key,extra,ORDINAL_POSITION  from information_schema.COLUMNS where  table_schema = ? and  table_name = ?`, config.Database,config.Table)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	for rows.Next() {
 		col :=Column{}
-		rows.Scan(&col.ColumnName, &col.DataType, &col.ColumnType, &col.Nump, &col.Nums, &col.Comment, &col.ColumnKey, &col.Extra, &col.OrdinalPosition)
+		err := rows.Scan(&col.ColumnName, &col.DataType,&col.CharMaxLen, &col.ColumnType, &col.Nump, &col.Nums, &col.Comment, &col.ColumnKey, &col.Extra, &col.OrdinalPosition)
+		if err!=nil{
+			fmt.Println(err.Error())
+			return
+		}
+
+
 		col.SqlStr = buildsql(col)
 		columns = append(columns, col)
 	}
@@ -336,8 +352,8 @@ func main() {
 		ModelL:  lcfirst(transfer(model)),
 		Columns: columns,
 	})
-
-	os.MkdirAll(*dstdir+"/ui/api/"+model, fs.FileMode(os.O_CREATE))
+	//并不需要创建目录
+	//os.MkdirAll(*dstdir+"/ui/api/"+model, fs.FileMode(os.O_CREATE))
 	f, err = os.OpenFile(*dstdir+"/ui/api/"+model+".js", os.O_WRONLY|os.O_CREATE, 0766)
 	if err != nil {
 		fmt.Println(err)
