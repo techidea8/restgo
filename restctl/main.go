@@ -162,7 +162,7 @@ var showversion = flag.Bool("v", false, "show restctl version")
 var model = ""
 var config *Config = new(Config)
 
-const version = `restctl version @0.0.4,all rights reserved,email=271151388@qq.com,author=winlion`
+const version = `restctl version @0.0.5,all rights reserved,email=271151388@qq.com,author=winlion`
 
 func PathExists(path string) (bool, error) {
 	_, err := os.Stat(path)
@@ -184,8 +184,15 @@ func main() {
 	fmt.Println(version)
 	//如果需要展示版本号
 	if exist, err := PathExists(*cfgpath); err != nil || !exist {
-		f, _ := os.OpenFile(*cfgpath, os.O_WRONLY|os.O_CREATE, 0666) //打开文件
-		f.Close()                                                    //写入文件(字符串)
+		if err!=nil{
+			fmt.Println(err.Error())
+		}else{
+			if !exist{
+				f, _ := os.OpenFile(*cfgpath, os.O_WRONLY|os.O_CREATE, 0666) //打开文件
+				f.Close()
+			}
+		}
+		                                                  //写入文件(字符串)
 	}
 	//如果需要reversion数据库
 
@@ -279,13 +286,13 @@ func main() {
 	}
 	defer MtsqlDb.Close()
 	columns := make([]Column, 0)
-	rows, err := MtsqlDb.Query(`select COLUMN_NAME ,DATA_TYPE,COLUMN_TYPE,NUMERIC_PRECISION,NUMERIC_SCALE,COLUMN_COMMENT,column_key,extra,ORDINAL_POSITION  from information_schema.COLUMNS where  table_schema = ? and  table_name = ?`, *db, *table)
+	rows, err := MtsqlDb.Query(`select COLUMN_NAME ,DATA_TYPE,COLUMN_TYPE,NUMERIC_PRECISION,NUMERIC_SCALE,COLUMN_COMMENT,column_key,extra,ORDINAL_POSITION  from information_schema.COLUMNS where  table_schema = ? and  table_name = ?`, config.Database,config.Table)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	for rows.Next() {
-		var col Column
+		col :=Column{}
 		rows.Scan(&col.ColumnName, &col.DataType, &col.ColumnType, &col.Nump, &col.Nums, &col.Comment, &col.ColumnKey, &col.Extra, &col.OrdinalPosition)
 		col.SqlStr = buildsql(col)
 		columns = append(columns, col)

@@ -34,7 +34,7 @@
         <el-table-column align="header-center" label="序号" type="selection">    
         </el-table-column>
         {{range $i,$v := .Columns}}
-        <el-table-column align="header-center" label="{{$v.ColumnName}}" width="100">
+        <el-table-column align="header-center" label="{{$v.Comment}}">
           <template slot-scope="scope" v-text="scope.row.{{$v.ColumnName}}">
 
           </template>
