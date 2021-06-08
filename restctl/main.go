@@ -21,6 +21,7 @@ import (
 
 type Column struct {
 	ColumnName      string        `json:"colname"`
+	ColumnJsonName      string        `json:"coljsonname"`
 	DataType        string        `json:"datatype"`
 	CharMaxLen          int         `json:"maxlen"`
 	ColumnType      string        `json:"coltype"`
@@ -311,8 +312,8 @@ func main() {
 			fmt.Println(err.Error())
 			return
 		}
-
-
+		//转换成abC的形式
+		col.ColumnJsonName = lcfirst(transfer(col.ColumnName))
 		col.SqlStr = buildsql(col)
 		columns = append(columns, col)
 	}

@@ -31,7 +31,7 @@
         {{range $i,$v := .Columns}}
         <el-table-column align="header-center" label="{{$v.Comment}}">
           <template slot-scope="scope" >
-				<block v-text="scope.row.{{$v.ColumnName}}"></block>
+				<p v-text="scope.row.{{$v.ColumnJsonName}}"></p>
           </template>
         </el-table-column>
        {{end}}
@@ -77,45 +77,45 @@
                   {{if eq $v.DataType  "datetime"}}
                         <el-form-item label="{{$v.Comment}}">
                             <el-date-picker
-                                    v-model="dataobject.{{$v.ColumnName}}"
+                                    v-model="dataobject.{{$v.ColumnJsonName}}"
                                     type="datetime"
                                     placeholder="选择日期时间">
                             </el-date-picker>
                         </el-form-item>
                     {{else if eq $v.DataType  "date"}}
                         <el-form-item label="{{$v.Comment}}">
-                            <el-input v-model="dataobject.{{$v.ColumnName}}" placeholder="输入"></el-input>
+                            <el-input v-model="dataobject.{{$v.ColumnJsonName}}" placeholder="输入"></el-input>
                         </el-form-item>
                     {{else if eq $v.DataType  "int"}}
                     <el-form-item label="{{$v.Comment}}">
-                        <el-input v-model="dataobject.{{$v.ColumnName}}" type="number" placeholder="输入"></el-input>
+                        <el-input v-model="dataobject.{{$v.ColumnJsonName}}" type="number" placeholder="输入"></el-input>
                     </el-form-item>
                     {{else if eq $v.DataType  "bigint"}}
                     <el-form-item label="{{$v.Comment}}">
-                        <el-input v-model="dataobject.{{$v.ColumnName}}" type="number" placeholder="输入"></el-input>
+                        <el-input v-model="dataobject.{{$v.ColumnJsonName}}" type="number" placeholder="输入"></el-input>
                     </el-form-item>
                         {{else if eq $v.DataType  "numeric"}}
                         <el-form-item label="{{$v.Comment}}">
-                            <el-input v-model="dataobject.{{$v.ColumnName}}" type="number" placeholder="输入"></el-input>
+                            <el-input v-model="dataobject.{{$v.ColumnJsonName}}" type="number" placeholder="输入"></el-input>
                         </el-form-item>
                         {{else if eq $v.DataType  "decimal"}}
                         <el-form-item label="{{$v.Comment}}">
-                            <el-input v-model="dataobject.{{$v.ColumnName}}" type="number" placeholder="输入"></el-input>
+                            <el-input v-model="dataobject.{{$v.ColumnJsonName}}" type="number" placeholder="输入"></el-input>
                         </el-form-item>
                     {{else if eq $v.DataType  "varchar"}}
                         {{if gt $v.CharMaxLen 30}}
                             <el-form-item label="{{$v.Comment}}">
-                                <el-input v-model="dataobject.{{$v.ColumnName}}" type="textarea" placeholder="输入"></el-input>
+                                <el-input v-model="dataobject.{{$v.ColumnJsonName}}" type="textarea" placeholder="输入"></el-input>
                             </el-form-item>
                         {{else}}
                         <el-form-item label="{{$v.Comment}}">
-                            <el-input v-model="dataobject.{{$v.ColumnName}}" type="textarea" placeholder="输入"></el-input>
+                            <el-input v-model="dataobject.{{$v.ColumnJsonName}}" type="textarea" placeholder="输入"></el-input>
                         </el-form-item>
                         {{end}}
                    {{else}}
 
                     <el-form-item label="{{$v.Comment}}">
-                        <el-input v-model="dataobject.{{$v.ColumnName}}" placeholder="输入"></el-input>
+                        <el-input v-model="dataobject.{{$v.ColumnJsonName}}" placeholder="输入"></el-input>
                     </el-form-item>
                     {{end}}
           {{end}}
@@ -139,7 +139,7 @@
   
   import {{.ModelApi}} from '@/api/{{.ModelL}}'
 
-  const defaultObject = { {{range $i,$v := .Columns}} {{$v.ColumnName}}:{{if eq $v.DataType  "int"}} 0 {{else if eq $v.DataType  "bigint"}} 0 {{else if eq $v.DataType  "varchar"}} "" {{else}} undefined {{end}},{{end}} daterange:[] }
+  const defaultObject = { {{range $i,$v := .Columns}} {{$v.ColumnJsonName}}:{{if eq $v.DataType  "int"}} 0 {{else if eq $v.DataType  "bigint"}} 0 {{else if eq $v.DataType  "varchar"}} "" {{else}} undefined {{end}},{{end}} daterange:[] }
   
   export default {
    
@@ -202,16 +202,16 @@
       handleEdit(scope) {  //修改更新记录
         this.dialogType = 'edit'
         this.dialogVisible = true
-        this.dataobject = Object.assign({}.scope.row)
+        this.dataobject = Object.assign({},scope.row)
       },
-      handleDelete({ $index, row }) {
+      handleDelete({ $index, row }) {  //处理删除按钮
           {{.ModelApi}}.deleteIt(row.id).then(res=>{
              this.dataList.splice($index, 1)
             this.$notify.success('你已成功删除数据')
            }).catch(err => { this.$notify.error(err.message) })
       },
       
-      async confirmData() {
+      async confirmData() { //提交确认
         const isEdit = this.dialogType === 'edit'
        
         if (isEdit) {
@@ -220,7 +220,7 @@
 			  this.$notify.success(res.msg || "数据修改成功")
           })
         } else {
-          const { data,msg } = await {{.ModelApi}}.create(Object.assign({},this.dataobject,datearg))
+          const { data,msg } = await {{.ModelApi}}.create(Object.assign({},this.dataobject))
           this.dataobject.id = data.id
           this.dataList.push(data)
 		  this.$notify.success(msg || "数据添加成功")
