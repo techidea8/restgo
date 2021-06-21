@@ -97,7 +97,8 @@ func parseToken(strToken string) (*jWTClaims, error) {
 		return []byte(Secret), nil
 	})
 	if err != nil {
-		return nil, errors.New(ErrorReason_ServerBusy)
+
+		return nil, errors.New(ErrorReason_ServerBusy+":"+err.Error())
 	}
 	claims, ok := token.Claims.(*jWTClaims)
 	if !ok {
@@ -113,7 +114,7 @@ func getToken(claims *jWTClaims) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedToken, err := token.SignedString([]byte(Secret))
 	if err != nil {
-		return "", errors.New(ErrorReason_ServerBusy)
+		return "", errors.New(ErrorReason_ServerBusy+":"+err.Error())
 	}
 	return signedToken, nil
 }
