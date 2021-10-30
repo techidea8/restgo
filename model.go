@@ -6,10 +6,10 @@ import (
 
 type BaseModel struct {
 	Id       uint     `json:"id" form:"id" gorm:"primarykey"`
-	CreateAt DateTime `json:"createAt"   form:"updateAt" gorm:"comment:创建时间" time_format:"2006-01-02 15:04:05" time_utc:"1"` //加入时间
-	UpdateAt DateTime `json:"updateAt"   form:"updateAt" gorm:"comment:更新时间" time_format:"2006-01-02 15:04:05" time_utc:"1"` //加入时间
-	DeleteAt DateTime `json:"deleteAt"   form:"deleteAt" gorm:"comment:删除时间" time_format:"2006-01-02 15:04:05" time_utc:"1"` //加入时间
-	Deleted  bool     `json:"deleted"   form:"deleted" gorm:"comment:删除状态"`                                                  //加入时间
+	CreateAt DateTime `json:"createAt"   form:"updateAt" gorm:"comment:创建时间" time_format:"2006-01-02 15:04:05" time_utc:"1"` //创建时间
+	UpdateAt DateTime `json:"updateAt"   form:"updateAt" gorm:"comment:更新时间" time_format:"2006-01-02 15:04:05" time_utc:"1"` //更新时间
+	DeleteAt DateTime `json:"deleteAt"   form:"deleteAt" gorm:"comment:删除时间" time_format:"2006-01-02 15:04:05" time_utc:"1"` //删除时间
+	Deleted  bool     `json:"deleted" form:"deleted" gorm:"comment:删除状态"`                                                  //删除状态
 }
 
 func (m *BaseModel) BeforeCreate(tx *gorm.DB) (err error) {
