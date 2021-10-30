@@ -3,9 +3,9 @@ golang app开发包
 
 # 使用方法
 + 下载项目
-`bash
-git clone https://github.com/techidea8/elego.git
-`
+    `bash
+        git clone https://github.com/techidea8/elego.git
+    `
 + 安装restctl
 `golang
 go get github.com/techidea8/restctl
