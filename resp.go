@@ -102,6 +102,16 @@ func Forbidden(w http.ResponseWriter) {
 }
 
 //w,data.msg,code
+func Resp(w http.ResponseWriter, resp *RespData) {
+	RespJson(w, map[string]interface{}{
+		"data": resp.Data,
+		"code": resp.Code,
+		"rows": resp.Rows,
+		"msg":  resp.Msg,
+	}, http.StatusOK)
+}
+
+//w,data.msg,code
 func RespFailMap(w http.ResponseWriter, data map[string]interface{}) {
 	code := http.StatusNotFound
 	RespJson(w, map[string]interface{}{
