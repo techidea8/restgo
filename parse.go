@@ -49,6 +49,11 @@ func BindForm(req *http.Request, ptr interface{}) error {
 	return err
 }
 
+//解析成json
+func ParseObject(input []byte, obj interface{}) error {
+	return json.Unmarshal(input, obj)
+}
+
 func mapForm(ptr interface{}, form map[string][]string) error {
 	typ := reflect.TypeOf(ptr).Elem()
 	val := reflect.ValueOf(ptr).Elem()
