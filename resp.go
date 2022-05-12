@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"encoding/json"
-
 	"fmt"
+	"strings"
 )
 
 type RespData struct {
@@ -14,6 +14,46 @@ type RespData struct {
 	Data  interface{} `json:"data,omitempty"`
 	Msg   interface{} `json:"msg,omitempty"`
 	Total interface{} `json:"total,omitempty"`
+}
+
+//返回msg
+func (r *RespData) Ok(msgs ...string) *RespData {
+	if len(msgs) > 0 {
+		r.Msg = strings.Join(msgs, ",")
+	}
+	r.Code = http.StatusOK
+	return r
+}
+
+//返回msg
+func (r *RespData) Fail(msg string) *RespData {
+	r.Msg = msg
+	r.Code = http.StatusNotFound
+	return r
+}
+
+//返回msg
+func (r *RespData) WithData(data interface{}) *RespData {
+	r.Data = data
+	return r
+}
+
+//返回msg
+func (r *RespData) WithRows(rows interface{}) *RespData {
+	r.Rows = rows
+	return r
+}
+
+//返回msg
+func (r *RespData) WithCode(code interface{}) *RespData {
+	r.Code = code
+	return r
+}
+
+//返回msg
+func (r *RespData) WithTotal(total interface{}) *RespData {
+	r.Total = total
+	return r
 }
 
 //返回JSON数据

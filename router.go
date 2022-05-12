@@ -1,22 +1,25 @@
 package restgo
 
 import (
-	"github.com/techidea8/restgo/middleware"
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/techidea8/restgo/middleware"
 )
 
 type MiddlewareRule struct {
 	fun      middleware.Middleware
 	excludes []string
 }
+
 //跨域开关
 var cors bool = false
-func EnableCors(){
+
+func EnableCors() {
 	cors = true
 }
-func DisableCors(){
+func DisableCors() {
 	cors = false
 }
 
@@ -50,6 +53,12 @@ func Module(module string) (p *GroupRouter) {
 	return pg
 }
 
+var rpcModules []interface{} = make([]interface{}, 0)
+
+func RegisterRpcModule(module ...interface{}) {
+	rpcModules = append(rpcModules, module)
+}
+
 //路由处理函数
 func (p *GroupRouter) handlerouter(method, act string, fun func(w http.ResponseWriter, req *http.Request)) (r *GroupRouter) {
 
@@ -62,18 +71,18 @@ func (p *GroupRouter) handlerouter(method, act string, fun func(w http.ResponseW
 	}
 
 	http.HandleFunc(prefix+"/"+act, func(w http.ResponseWriter, req *http.Request) {
-        //如果跨域支持
+		//如果跨域支持
 
-		if(cors){
+		if cors {
 			headers := w.Header()
-			headers.Add("Access-Control-Allow-Origin", "*") //允许访问所有域
+			headers.Add("Access-Control-Allow-Origin", "*")  //允许访问所有域
 			headers.Add("Access-Control-Allow-Headers", "*") //header的类型
 			headers.Add("Access-Control-Allow-Methods", "*")
 		}
 		if req.Method == "OPTIONS" {
-			if(cors){
+			if cors {
 				w.WriteHeader(http.StatusOK)
-			}else{
+			} else {
 				w.WriteHeader(http.StatusForbidden)
 			}
 			return
