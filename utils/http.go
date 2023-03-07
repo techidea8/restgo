@@ -15,10 +15,10 @@ import (
 	"os"
 	"strings"
 
-	log "github.com/cihub/seelog"
+	log "github.com/techidea8/restgo/pkg/log"
 )
 
-//HTTPGet get 请求
+// HTTPGet get 请求
 func HttpGet(url string, headers ...map[string]string) ([]byte, error) {
 	client := &http.Client{}
 	reqest, err := http.NewRequest("GET", url, nil)
@@ -38,7 +38,7 @@ func HttpGet(url string, headers ...map[string]string) ([]byte, error) {
 	return body, err
 }
 
-//PostJSON post json 数据请求
+// PostJSON post json 数据请求
 func PostJSON(uri string, structObj interface{}) ([]byte, error) {
 
 	jsonData, err := json.Marshal(structObj)
@@ -52,12 +52,12 @@ func PostJSON(uri string, structObj interface{}) ([]byte, error) {
 	return PostJsonBytes(uri, jsonData)
 }
 
-//PostJSON post json 数据请求
+// PostJSON post json 数据请求
 func PostJsonString(uri string, jsonData string) ([]byte, error) {
 	return PostJsonBytes(uri, []byte(jsonData))
 }
 
-//这是配置json
+// 这是配置json
 func PostJsonWithHeader(url string, structObj interface{}, headers map[string]string) (r []byte, err error) {
 
 	bytes, _ := json.Marshal(structObj)
@@ -100,7 +100,7 @@ func PostJsonBytes(uri string, jsonData []byte) ([]byte, error) {
 	return ioutil.ReadAll(response.Body)
 }
 
-//PostFile 上传文件
+// PostFile 上传文件
 func PostFile(fieldname, filename, uri string) ([]byte, error) {
 	fields := []MultipartFormField{
 		{
@@ -112,7 +112,7 @@ func PostFile(fieldname, filename, uri string) ([]byte, error) {
 	return PostMultipartForm(fields, uri)
 }
 
-//MultipartFormField 保存文件或其他字段信息
+// MultipartFormField 保存文件或其他字段信息
 type MultipartFormField struct {
 	IsFile    bool
 	Fieldname string
@@ -120,7 +120,7 @@ type MultipartFormField struct {
 	Filename  string
 }
 
-//PostMultipartForm 上传文件或其他多个字段
+// PostMultipartForm 上传文件或其他多个字段
 func PostMultipartForm(fields []MultipartFormField, uri string) (respBody []byte, err error) {
 	bodyBuf := &bytes.Buffer{}
 	bodyWriter := multipart.NewWriter(bodyBuf)
@@ -172,7 +172,7 @@ func PostMultipartForm(fields []MultipartFormField, uri string) (respBody []byte
 	return
 }
 
-//PostXML perform a HTTP/POST request with XML body
+// PostXML perform a HTTP/POST request with XML body
 func PostXML(uri string, obj interface{}) ([]byte, error) {
 	xmlData, err := xml.Marshal(obj)
 	if err != nil {
@@ -192,7 +192,7 @@ func PostXML(uri string, obj interface{}) ([]byte, error) {
 	return ioutil.ReadAll(response.Body)
 }
 
-//PostXML perform a HTTP/POST request with XML body
+// PostXML perform a HTTP/POST request with XML body
 func PostXMLWithhttps(uri string, xmldata string, certFile, keyFile string) (r []byte, err error) {
 
 	body := bytes.NewBuffer([]byte(xmldata))

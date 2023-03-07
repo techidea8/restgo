@@ -1,43 +1,45 @@
 package utils
 
 import (
-
 	"math/rand"
-	"regexp"
-	"strconv"
+	"time"
+	"unicode"
 )
 
-var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+func UcFirst(str string) string {
+	for i, v := range str {
+		return string(unicode.ToUpper(v)) + str[i+1:]
+	}
+	return ""
+}
+func LcFirst(str string) string {
+	for i, v := range str {
+		return string(unicode.ToLower(v)) + str[i+1:]
+	}
+	return ""
+}
 
-func RandSeq(n int) string {
-	b := make([]rune, n)
+var letters = []rune("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+var numbers = []rune("0123456789")
+
+func RandSeq(n ...int) string {
+	return RandStr(letters, n...)
+}
+
+func RandNumber(n ...int) string {
+	return RandStr(numbers, n...)
+}
+
+func RandStr(chars []rune, n ...int) string {
+	num := 12
+	lens := len(chars)
+	if len(n) > 0 {
+		num = n[0]
+	}
+	b := make([]rune, num)
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
+		b[i] = chars[r.Intn(lens)]
 	}
 	return string(b)
-}
-
-func SubStr(str string,num int)string{
-	nameRune := []rune(str)
-	if(num>len(nameRune)){
-		num = len(nameRune)
-	}
-	return string(nameRune[:num])
-}
-
-
-func ParseStr(str string) float32 {
-	digitsRegexp := regexp.MustCompile(`(\d+)\D+(\d+)`)
-	ret := digitsRegexp.FindStringSubmatch(str)
-	if len(ret)<2{
-		return 0
-	}else{
-		a,e:=strconv.ParseFloat(ret[1],10)
-		if(e!=nil){
-			return 0.0
-		}else{
-			return float32(a)
-		}
-	}
-
 }
