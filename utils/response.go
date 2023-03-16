@@ -23,10 +23,29 @@ func ResultRows(data interface{}, total int64) Result {
 		Total: total,
 	}
 }
-func ResultOk(data interface{}) Result {
+func ResultOkMsg(msg string) Result {
+
 	return Result{
 		Code: http.StatusOK,
-		Data: data,
+		Msg:  msg,
+	}
+}
+func ResultOk(data ...interface{}) Result {
+	if len(data) == 0 {
+		return Result{
+			Code: http.StatusOK,
+		}
+	} else if len(data) == 1 {
+		return Result{
+			Code: http.StatusOK,
+			Data: data[0],
+		}
+	} else {
+		return Result{
+			Code: http.StatusOK,
+			Data: data[0],
+			Msg:  data[0].(string),
+		}
 	}
 }
 func ResultError(msg any) Result {
