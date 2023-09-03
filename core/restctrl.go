@@ -25,53 +25,53 @@ func (ctrl RestCtrl) PaternString() string {
 	return ctrl.Patern
 }
 
-func (ctrl *RestCtrl) RespList(w http.ResponseWriter, rows interface{}, total interface{}) {
+func (ctrl *RestCtrl) RespList(w http.ResponseWriter, rows interface{}, total interface{}) error{
 	header := w.Header()
 	header.Set("Content-Type", "application/json;charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(RespData{
+	return json.NewEncoder(w).Encode(RespData{
 		Code:  http.StatusOK,
 		Msg:   "",
 		Rows:  rows,
 		Total: total,
 	})
 }
-func (ctrl *RestCtrl) RespJson(w http.ResponseWriter, data interface{}, code int, msg string) {
+func (ctrl *RestCtrl) RespJson(w http.ResponseWriter, data interface{}, code int, msg string) error {
 	header := w.Header()
 	header.Set("Content-Type", "application/json;charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(RespData{
+	return json.NewEncoder(w).Encode(RespData{
 		Code: code,
 		Msg:  msg,
 		Data: data,
 	})
 }
 
-func (ctrl *RestCtrl) Resp(w http.ResponseWriter, data RespData) {
+func (ctrl *RestCtrl) Resp(w http.ResponseWriter, data RespData) error{
 	header := w.Header()
 	header.Set("Content-Type", "application/json;charset=utf-8")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(data)
+	return json.NewEncoder(w).Encode(data)
 }
 
-func (ctrl *RestCtrl) RespOk(w http.ResponseWriter, data interface{}, msg ...string) {
+func (ctrl *RestCtrl) RespOk(w http.ResponseWriter, data interface{}, msg ...string) error {
 	if len(msg) > 0 {
-		ctrl.RespJson(w, data, http.StatusOK, strings.Join(msg, ";"))
+		return ctrl.RespJson(w, data, http.StatusOK, strings.Join(msg, ";"))
 	} else {
-		ctrl.RespJson(w, data, http.StatusOK, "")
+		return ctrl.RespJson(w, data, http.StatusOK, "")
 	}
 }
 
-func (ctrl *RestCtrl) RespOkMsg(w http.ResponseWriter, msg string) {
+func (ctrl *RestCtrl) RespOkMsg(w http.ResponseWriter, msg string) error{
 
-	ctrl.RespJson(w, nil, http.StatusOK, msg)
+	return ctrl.RespJson(w, nil, http.StatusOK, msg)
 
 }
 
-func (ctrl *RestCtrl) RespOkMap(w http.ResponseWriter, data map[string]interface{}) {
-	ctrl.RespOk(w, data, "")
+func (ctrl *RestCtrl) RespOkMap(w http.ResponseWriter, data map[string]interface{}) error {
+	return ctrl.RespOk(w, data, "")
 }
 
-func (ctrl *RestCtrl) RespFail(w http.ResponseWriter, msg string) {
-	ctrl.RespJson(w, nil, http.StatusNotFound, msg)
+func (ctrl *RestCtrl) RespFail(w http.ResponseWriter, msg string) error{
+	return ctrl.RespJson(w, nil, http.StatusNotFound, msg)
 }
