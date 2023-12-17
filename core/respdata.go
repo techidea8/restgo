@@ -7,18 +7,15 @@ import (
 )
 
 type RespData struct {
-	Code       int         `json:"code"`
-	Rows       interface{} `json:"rows,omitempty"`
-	Data       interface{} `json:"data,omitempty"`
-	Msg        string      `json:"msg,omitempty"`
-	Total      interface{} `json:"total,omitempty"`
-	HttpStatus int         `json:"-"`
+	Code  int         `json:"code"`
+	Rows  interface{} `json:"rows,omitempty"`
+	Data  interface{} `json:"data,omitempty"`
+	Msg   string      `json:"msg,omitempty"`
+	Total interface{} `json:"total,omitempty"`
 }
 
 func NewRespData() *RespData {
-	return &RespData{
-		HttpStatus: http.StatusOK,
-	}
+	return &RespData{}
 }
 
 // 返回msg
@@ -27,7 +24,6 @@ func (r *RespData) Ok(msgs ...string) *RespData {
 		r.Msg = strings.Join(msgs, ",")
 	}
 	r.Code = http.StatusOK
-	r.HttpStatus = http.StatusOK
 	return r
 }
 
@@ -38,7 +34,6 @@ func (r *RespData) OkData(data interface{}, msg ...string) *RespData {
 	}
 	r.Data = data
 	r.Code = http.StatusOK
-	r.HttpStatus = http.StatusOK
 	return r
 }
 
@@ -46,7 +41,6 @@ func (r *RespData) OkData(data interface{}, msg ...string) *RespData {
 func (r *RespData) Fail(msg string) *RespData {
 	r.Msg = msg
 	r.Code = http.StatusNotFound
-	r.HttpStatus = http.StatusOK
 	return r
 }
 
@@ -75,16 +69,10 @@ func (r *RespData) WithTotal(total interface{}) *RespData {
 }
 
 // 返回msg
-func (r *RespData) WithHttpStatus(code int) *RespData {
-	r.HttpStatus = code
-	return r
-}
-
-// 返回msg
 func (r *RespData) Json(w http.ResponseWriter) {
 	header := w.Header()
 	header.Set("Content-Type", "application/json;charset=utf-8")
-	w.WriteHeader(r.HttpStatus)
+	w.WriteHeader(r.Code)
 	json.NewEncoder(w).Encode(*r)
 }
 
@@ -92,7 +80,7 @@ func (r *RespData) Json(w http.ResponseWriter) {
 func (r *RespData) Html(w http.ResponseWriter) {
 	header := w.Header()
 	header.Set("Content-Type", "text/html;charset=utf-8")
-	w.WriteHeader(r.HttpStatus)
+	w.WriteHeader(r.Code)
 	if str, ok := r.Data.(string); ok {
 		w.Write([]byte(str))
 	} else {

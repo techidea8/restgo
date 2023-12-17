@@ -1,6 +1,6 @@
 module github.com/techidea8/restgo
 
-go 1.19
+go 1.18
 
 require (
 	github.com/ArtisanCloud/PowerWeChat/v3 v3.0.13
