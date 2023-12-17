@@ -5,6 +5,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"reflect"
 	"regexp"
 	"strconv"
@@ -47,12 +48,12 @@ func Bind(req *http.Request, obj interface{}) error {
 	} else if strings.Contains(strings.ToLower(contentType), "multipart/form-data") {
 		return BindForm(req, obj)
 	} else {
-		return BindForm(req, obj)
+		return BindQuery(req, obj)
 	}
 	// return errors.New("当前格式类型" + contentType + "暂不支持")
 }
 
-func BindJson(req *http.Request, obj interface{}) error {
+func BindJson(req *http.Request, ptr interface{}) error {
 	s, err := ioutil.ReadAll(req.Body) //把  body 内容读入字符串
 	if err != nil {
 		return err
@@ -60,18 +61,31 @@ func BindJson(req *http.Request, obj interface{}) error {
 	if len(s) == 0 {
 		return nil
 	} else {
-		err = json.Unmarshal(s, obj)
+		err = json.Unmarshal(s, ptr)
 		return err
 	}
 }
+func BindQuery(req *http.Request, ptr interface{}) error {
+	err := req.ParseForm()
+	formdata := req.Form
+	dataMap := map[string]string{}
+	for k, _ := range formdata {
+		value := formdata.Get(k)
+		dataMap[k] = value
+	}
+	data, _ := json.Marshal(dataMap)
 
+	json.Unmarshal(data, ptr)
+	return err
+}
 func BindForm(req *http.Request, ptr interface{}) error {
 	err := req.ParseForm()
+	fordata := req.Form
 	if err != nil {
-		return err
+		fordata = url.Values{}
 	}
 	//fmt.Println("BindForm ==>" + req.RequestURI + "==>" + req.Form.Encode())
-	err = mapForm(ptr, req.Form, req.URL.Query())
+	err = mapForm(ptr, fordata)
 	return err
 }
 
