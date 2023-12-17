@@ -32,6 +32,17 @@ func (r *RespData) Ok(msgs ...string) *RespData {
 }
 
 // 返回msg
+func (r *RespData) OkData(data interface{}, msg ...string) *RespData {
+	if len(msg) > 0 {
+		r.Msg = strings.Join(msg, "")
+	}
+	r.Data = data
+	r.Code = http.StatusOK
+	r.HttpStatus = http.StatusOK
+	return r
+}
+
+// 返回msg
 func (r *RespData) Fail(msg string) *RespData {
 	r.Msg = msg
 	r.Code = http.StatusNotFound
@@ -75,4 +86,17 @@ func (r *RespData) Json(w http.ResponseWriter) {
 	header.Set("Content-Type", "application/json;charset=utf-8")
 	w.WriteHeader(r.HttpStatus)
 	json.NewEncoder(w).Encode(*r)
+}
+
+// 返回msg
+func (r *RespData) Html(w http.ResponseWriter) {
+	header := w.Header()
+	header.Set("Content-Type", "text/html;charset=utf-8")
+	w.WriteHeader(r.HttpStatus)
+	if str, ok := r.Data.(string); ok {
+		w.Write([]byte(str))
+	} else {
+		r, _ := json.Marshal(r)
+		w.Write(r)
+	}
 }
